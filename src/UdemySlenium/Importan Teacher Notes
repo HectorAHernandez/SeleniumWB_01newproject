@@ -1,0 +1,208 @@
+
+//instructor's email: rahulonlinetutor@gmail.com
+
+These are based on the Teacher's experience to keep in mind with Selenium
+
+- Every webobject may not have Id, className or name, so we will need to use xpath and CSS-selector.
+- When dealing with className, id or name: Alpha numeric id may vary on every time that
+   the browser is refreshed. So they will change.
+- Confirm the link weboject with their anchor "a" tag.
+- Classes name should not have spaces - spaces will generate the error "Compound 
+     can not be accepted"
+- when multiple attributes have the same name, Selenium will identifies the first one, scannning from 
+     top to left.
+- double quote inside another double quote are not accepted, so change the inside ones with single
+     quote, or insert the backward slash \, like \"
+- xpath can be defined in different ways.
+- right click on bleu highlighted html code to generate the xpath, by selecting copy.
+- Firepath has been deprecated from firefox, so not use it, it is not reliable.
+- when an xpath starts with \html\body\... it is not reliable, so regenerate it suing Chrome browser, with will
+     generate it stating with //*tagname...
+- There is no direct way to get CSS in Chrome, you have to get them using the tool bar.
+
+-To get the CSS-Selector of a webElement, right click then copy CSS Selector
+and paste the in here: #forgot_password_link
+Now to validate it, in the inspector window, click on the Console tab and at the bottom
+of in the command line, type "allow paste" and enter, then we are able to enter 
+the commands $("") or $x("") for xpath validation. 
+pasting the CSS-Selector copied #forgot_password_link:
+       $("#forgot_password_link") click enter and then the webobject will be 
+       highlighted, this    
+       $x("//*[@id='mydomainLink']")    // for xpath.    
+       
+ note: in Chrome we can only validate xpath  $x("//*[@id='forgot_password_link']") in xpath
+ remember to change the double quote " by single quote '
+ inner html: <input class="input r4 wide mb16 mt8 username" value="" name="username" 
+              id="username" style="display: block;" type="email">
+ tagName = input.
+ attributes are on the left of the equal sign, like: class, value, name, id, style and type
+ values are on the right side, like: username, display: block;, and email.
+ 
+ - to build xpath, manually, we use the syntax //tagName[@attribute='value'] 
+ Example: //input[@name='username']
+          //input[@id='username']
+          //input[@style='display: block;'] and //input[@type='email']
+ to have a generic search we user //*[@attribute='value'] this will find the attribute and value 
+ indicated in any tagName.
+ using CSS:
+ the syntax for CSS is tagName[attribute='value'] example:
+          input[name='username'],  input[style='display: block;']
+          input[id='username'],    input[type='email']
+  for a generic search using CSS only have to ommit the tagName: [name='username'],
+         [id='username'],    [type='email']
+Another syntax for CSS is:
+  tagName#id    --- this ONLY works with an webobject having the id attribute, example
+  input#username   --- user name was the value for the id attribute.         
+ Also can eliminate the tagName on only provide the id Exmple: #username, or #email.
+ Another CSS syntax is:
+  tagName.classname Example input.inputtext
+
+Using regular expression to find the webelement when the attribute names are dynamically
+changing (or it is too big) but we know that there is a substring/part that remains the same: Example:
+The format for the regular expression with xpath is 
+                   //tagName[contains(@attribute,'substringValue')]
+For tag <input name="username12345">
+we can write //input[contains(@name,'usernam')]  // the substring is usernam because the othe 12345 can change
+
+Regular Expression syntax for CSS:
+   tagName[attribute*,'substringValue']      // the * indicate the attribute contains the substring indicated
+   example: input[name*,'usernam']   
+
+- Creating xpath by using parent to child relationship: this is used when there is no unique way to identify the webelement,
+  so we need to use the tagName of the Webelement a go back up to the nearest parent that we can uniquely identify by an xpath
+  and then from there:
+  1- Create the xpath for the unique parent.
+  2- Add the tagName for all the child using /tagName1/tagName2/tagName3.. Note if there are siblings use /tagName[n]
+  3- At the end use the tagName of the Webelement we need: /tagName.
+  so the format will be //tagName[attribute='value']/tagName1/tagName2.../tagName (of the target webelement. Example:
+                  //div[@class='cls-v']/div/div/div[2]/div/input
+                  //div[@class='lst-c']/div/div[2]/div/input         //in google.com input for the query.
+
+ - What is the difference between absolute and relative xpath?
+   The absolute is defined using the nodes parent/child relationship: //body/session/div/div/div[2]/ul/li[3].
+   The relative does not use the hierarchy, it uses the specific locator with the help of attributes. 
+                example //*[@id='loginButn'] or //input[name='username']
+   Relative a preferred over absolute because when the design change the hierarchy of the webelements in the page then we
+   have to change the all absolute xpath.
+   We relative we go directly to . 
+   
+   Using xpath the way we can identify a dynamic sibling after an static first one, is by using the
+   /following-sibling:li[n] syntax from the one we know that is static. Example:
+   //*[@id='tablist-tab1']/following-sibling:li[1]     // this identify the first sibling after, 2 will do the second.
+ 
+ // How to travel to a parent dynamic webelement from an static child. first we use the xpath of the static child, then add /parent::tagName 
+        //   format:    //*[@attribute='value']/parent::tagName    -where tagName is the tagName of the dynamic parent.
+        // Note: exam question: travel back to a parent can only be possible using xpath, CSS does not allow travel back to parent this is the main
+        // difference between xpath and CSS. Example: //*[@id='tablist1-tab1']parent::ul
+        driver.findElement(By.xpath("//*[@id='tablist1-tab1']/parent::ul")).click();        
+        
+        // how to identify webelement with a text based? this is used when there is no other attribute that can be used or when in an Agile Team
+        // we have to start creating the test cases and the design is not finished, but we can get the string that is going to be displayed for 
+        // the webelement. we use the spath format //*[text()='value']
+        driver.findElement(By.xpath("//*[text()=' Selenium ']")).click();
+        
+ Ussing CSS Locator for identifying webelement is 10 times faster than xpath. Also if the weblement is a class tagName, then 
+ only the CSS can be used to identify the webelement. also the syntax for CSS is much simpler than xpath.
+    Format in CSS :  tagName[attribute='value']    also without tagName  [attribute='value']
+         in xpath :  //tagName[@attribute='value'] also without tagName  //*[@attribute='value']  general expression.
+         
+- We have to: 1- Verify in chromPath the xpath or CSS for the webelement to identify, before running the script.
+              2- Customize the CSS or xpath. 
+              3- identify CSS selectors usig short code: #idName and .className   (replacing spaces by dot .)   
+              4- find the unique attribute that will identify the webelement.      
+  
+  Customized way of identifying locators:
+  xpath("//tagName[@attribute_01='value' and @attribute_2='value']")            
+  xpath("//tagName[@attribute_01='value' or @attribute_2='value']")
+  
+  For identifying DYNAMIC attributes, like name with value firstname144, then firstname145, then firstname146... 
+  STARTS-WITH: xpath("tagName[starts-with(@attribute, 'value')]")  Ex. xpath("//input[starts-with(@name,'firstname')]")
+                                                          xpath("//input[starts-with(@name,'firstn')]")
+  ENDS-WITH: xpath("//tagName[ends-with(@attribute,'value')]")  Ex.  xpath("//input[ends-with(@id,'-2018')]")                                                        
+    
+  CONTAINS: xpath("//tagName[contains(@attribute, 'value')]") Ex. for id = 3bcd-north-888 or 45af-north-8333
+  														 xpath("//input[contains(@id,'north')]")                                                            
+  
+  Synchronization in Selenium is mainly needed to avoid throwing exception or errors related to object not found or not available 
+  because of the page has not yet been loaded completely and the program is executing sentences against the page. this 
+  normally happens after clicling on Search button we have to wait for the next page to be displayed before using it.
+        - Search start.
+        - Wait for 5 seconds.
+        - Execute flight selection code.
+        
+  Synchronization is implemented by using: Implicit Wait, Explicit Wait, Thread.Sleep and Fluent Wait.
+  - Implicit Wait: 
+     . Is defined after defining the browser. 
+     . Is applicable to the whole program. Advantage, it is defined Globaly for the 100 steps in the program. This means
+       that it is applicable until the driver instance is active. or the driver object is kill by quit or close. 
+     . Indicate the maximum number of time that Selenium have to wait before throwing an exception related to timeout.   
+     . If we define 5 seconds and the search is completed (or DOM (Document Object Model) is received) in 2 seconds then the program continue 
+       without waiting for the 5 seconds.
+       Note: DOM is a representation of the HTML or XML document or the page. The DOM is an object-oriented representation
+             of the web page (HTML or XML) so that it content can be manipulated by any script language. This is why, after 
+             sending for a Search or IO request, we have to wait for the DOM to be created before we execute any command
+             on the response.
+   
+   - Explicit Wait:
+     . is defined for a specific step or test.
+     . It is used to give more time than the one defined in the Implicit wait. 15 seconds instead of 5.
+     . It allow an exception for the in wait time for the specific test.
+     
+   - Thread.Sleep:  (Thread.sleep(3000L);  //Indicate 3 seconds or 3000 miliseconds)
+     . It is part of Java, not Selenium.
+     . It halt or suspend execution of the script for x number of second.
+     . If Thread.sleep indicates 5 seconds and the execution take 3, it will wait for the 5 seconds.
+     . this does not care about the DOM to contiue if DOM is ready, It will wait until the defined x seconds.
+     . Thread.Sleep is not a good practice to use in a production script. It is only recommended during debugging the 
+       code for fixing an issue.
+       
+  ***  Actions   ***
+  Actions are used to:
+  1- place the mouse ove an object using Selenium.
+  2- Performing Mouse and Keyboard interactions with using Selenium
+  3- Do Context click on webelements.
+  4- Double click on webelements.
+  5- Drag and drop the webelement.
+  When working with actions we have to defined it, then, in the same sentense, build it and then perform it:
+        Actions action = new Actions(driver);
+        action.moveToElement(driver.findElement(By.cssSelector("a[id='nav-link-accountList']"))).build().perform();
+     after moving to the webelement, then we have to build the action to make it ready for execution. After build is
+     ready then we can perform.
+     
+  *** Parent and child window processing  ***
+  By default Selenium stick with the parent windows, so after clicking a link and taken to a new window (child) Selenium
+  will keep all the references to the parent window, this means that if you use the getTitle() method, the content will be 
+  the one for the parent window. To the the one for the child window we need to switch to the child window.
+  
+   *** Frame:  ****
+   what is a frame: In the context of a web browser, a frame is a part of a web page or browser window which displays content 
+   independent of its container or the webpage containing it, with the ability to load content independently. The HTML or media 
+   elements that go in a frame may or may not come from the same web site as the other elements of content on display.
+   This means that before accessing a webelement in a frame, we have to tell Selenium to switch to the frame containing the
+   webelement: driver.switchTo().frame(int index) // if we can find an index to identify the frame.
+               driver.switchTo().frame(String)  // if we can find the id to identify the frame.
+               driver.switchTo().frame(WebElement) // if we can use any other attribute like class, for example:
+                    driver.findEl.
+   for a webelement within a frame, when using Chropath to confirm the location of the webelement, it will return that
+   "0 matching node found" but we have the right xpath or CSS. So this is and indicator that the webelement belong to 
+   a frame.
+   
+   Note the isPresent() method is used to verify if the webobject is visible or not visible on the page. But if I want to know
+   if the webElement is present then I have to use: driver.findElements(By.xxxxx).size()>0 The 's' at the end of findElements indicate 
+   to find a list/set of all the element with the same locator, so if the size() of the list is grater than 0 it means that the webelement
+   is present on the page.
+   
+   when the class definition conteains class ='xxx-eeeee-hidden-accessible', we won't be able to get he content of the field using the
+   getText() method (driver.findElement(By.xpath("xxxxxx")).getText()), so we will need to use the "javascript executor or JavaScript HTML DOM". 
+   this is usually found when searching an AutoSuggested list box. See T15SearchAutosuggesstedLitbox.java.
+   With HTML DOM (Object Document Model), JavaScript can access and change all the elements in an HTML document, including the hidden ones. 
+   we have to use JavaScrip HTML DOM, because Selenium cannot identify hidden WebElements in an HTML document.  
+   We will need to investigate the properties of the element to see if it has hidden text. 
+   We are running Selenium with Java; but the way to execute JavaScript in Java is using the JavaScript.executor() method.
+   In the console, this command allow to getText() from the field: 
+          document.getElementByClassName('class-name').value        ---> JavaScript
+          document.getElementByTagName('tag-name').value        ---> JavaScript
+          document.getElementById('fromPlaceName').value        ---> JavaScript
+          driver.findElement(By.id('idText-name')).getText()    ---> in Selenium-Java 
+          document.xxx displays all the get options, similare to driver.xxx
+   
